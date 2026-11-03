@@ -1,0 +1,16 @@
+# macOS
+.DS_Store
+
+# Datos de facturación (facturas de proveedores y costos): no publicar en repo público
+INPUT/
+cache/
+data/
+reports/
+*.csv
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+analisis_documentos_*.md
