@@ -1,0 +1,1061 @@
+<meta name="dash-one-writer">
+<style>
+  .cc { font-family: var(--font-anthropic-sans); display: grid; gap: var(--cds-gap-lg); font-variant-numeric: tabular-nums; }
+  .cc-head { display: grid; gap: var(--cds-gap-sm); }
+  .cc-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .cc-lede { margin: 0; color: var(--color-fg-muted); max-width: 70ch; line-height: 1.5; }
+  .cc-lede b { color: var(--color-fg); font-weight: 600; }
+  .cc-bar { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm) var(--cds-gap-lg); align-items: center; justify-content: space-between; }
+  .cc-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+  .cc-tab, .cc-seg button { font: inherit; font-size: var(--cds-font-size-body); background: transparent; color: var(--color-fg-muted); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+  .cc-tab[aria-selected="true"], .cc-seg button[aria-pressed="true"] { color: var(--color-fg); background: var(--color-panel); border-color: var(--color-fg-muted); }
+  .cc-tab:focus-visible, .cc-seg button:focus-visible, .cc-sort:focus-visible, .cc-row:focus-visible, .cc-search:focus-visible, .cc-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .cc-seg { display: inline-flex; align-items: center; gap: var(--cds-gap-xs); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cc-section { display: grid; gap: var(--cds-gap-md); }
+  .cc-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 11rem), 1fr)); gap: var(--cds-gap-md); }
+  .cc-kpi, .cc-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); min-width: 0; }
+  .cc-kpi { display: grid; gap: var(--cds-gap-xs); align-content: start; }
+  .cc-kpi-label { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cc-kpi-value { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; }
+  .cc-kpi-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cc-up { color: var(--color-bad); } .cc-down { color: var(--color-ok); }
+  .cc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
+  .cc-card { display: grid; gap: var(--cds-gap-sm); align-content: start; }
+  .cc-card h2, .cc-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+  .cc-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; line-height: 1.45; max-width: 75ch; }
+  .cc-chart { position: relative; min-height: 18rem; }
+  .cc-chart.cc-short { min-height: 12rem; }
+  .cc-chart svg { display: block; overflow: visible; }
+  .cc-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .cc-tip { position: absolute; pointer-events: none; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); min-width: 10rem; max-width: 16rem; z-index: 2; }
+  .cc-tip-h { color: var(--cds-text-secondary); margin-bottom: 2px; }
+  .cc-tip-r { display: flex; gap: var(--cds-gap-xs); align-items: center; justify-content: space-between; }
+  .cc-tip-r span:first-child { display: inline-flex; align-items: center; gap: 4px; min-width: 0; }
+  .cc-sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+  .cc-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-top: var(--cds-gap-sm); }
+  .cc-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .cc-hbars { display: grid; gap: var(--cds-gap-xs); min-height: 10rem; }
+  .cc-hb { display: grid; grid-template-columns: minmax(7rem, 40%) 1fr auto; gap: var(--cds-gap-sm); align-items: center; font-size: var(--cds-font-size-caption); }
+  .cc-hb-l { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .cc-hb-t { height: 12px; background: var(--cds-chart-grid); border-radius: var(--cds-radius); overflow: hidden; }
+  .cc-hb-f { height: 100%; border-radius: var(--cds-radius); }
+  .cc-hb-v { color: var(--color-fg-muted); text-align: right; min-width: 6.5rem; }
+  .cc-tools { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+  .cc-search, .cc-select { font: inherit; font-size: var(--cds-font-size-body); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); min-width: 0; }
+  .cc-search { flex: 1 1 14rem; }
+  .cc-wrap { overflow: auto; max-height: 32rem; border-top: 1px solid var(--color-border-line); }
+  .cc-wrap.cc-tall { max-height: 40rem; }
+  .cc-table { width: 100%; border-collapse: collapse; font-size: var(--cds-font-size-caption); }
+  .cc-table th { position: sticky; top: 0; background: var(--color-panel); text-align: left; font-weight: var(--cds-font-weight-medium); color: var(--color-fg-muted); border-bottom: 1px solid var(--color-border-line); padding: var(--cds-pad-xs) var(--cds-pad-sm); white-space: nowrap; z-index: 1; }
+  .cc-table td { padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--cds-chart-grid); vertical-align: top; }
+  .cc-table .cc-n { text-align: right; white-space: nowrap; }
+  .cc-table .cc-file { color: var(--color-fg-muted); word-break: break-all; min-width: 12rem; }
+  .cc-sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+  .cc-row { cursor: pointer; }
+  .cc-row:hover td { background: var(--cds-chart-grid); }
+  .cc-row[aria-selected="true"] td { background: var(--cds-chart-grid); font-weight: 600; }
+  .cc-pill { display: inline-block; padding: 0 6px; border-radius: 999px; border: 1px solid var(--color-border-line); color: var(--color-fg-muted); white-space: nowrap; }
+  .cc-detail-head { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-lg); align-items: baseline; }
+  .cc-detail-head h3 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); }
+  .cc-facts { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs) var(--cds-gap-lg); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .cc-facts b { color: var(--color-fg); font-weight: 600; }
+  .cc-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .cc-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+  .cc-road { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr)); gap: var(--cds-gap-md); }
+  .cc-road ul { margin: 0; padding-left: 1.1rem; display: grid; gap: var(--cds-gap-xs); line-height: 1.45; }
+  .cc-stage { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .cc-stage.cc-now { color: var(--color-ok); }
+  [data-dash-source-state=empty] { color: transparent; }
+  [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+  @media (max-width: 40rem) { .cc-hide-sm { display: none; } .cc-hb { grid-template-columns: minmax(5rem, 38%) 1fr auto; } }
+</style>
+
+<div class="cc" id="cora">
+  <header class="cc-head">
+    <h1 class="cc-title">Costos Cora 2026</h1>
+    <p class="cc-lede">En 2026 Cora compró <b class="dash-skeleton" data-draw="t-gasto" data-source="resumen" data-row="0" data-field="neto">—</b> a <b class="dash-skeleton" data-draw="t-proveedores" data-source="resumen" data-row="0" data-field="proveedores">—</b> proveedores. El rubro con más gasto es <b class="dash-skeleton" data-draw="t-rubro" data-source="resumen" data-row="0" data-field="rubro_top">—</b>, con <b class="dash-skeleton" data-draw="t-rubro-pct" data-source="resumen" data-row="0" data-field="rubro_top_pct">—</b> del gasto neto, y el proveedor principal es <b class="dash-skeleton" data-draw="t-prov" data-source="resumen" data-row="0" data-field="proveedor_top">—</b>, con <b class="dash-skeleton" data-draw="t-prov-pct" data-source="resumen" data-row="0" data-field="proveedor_top_pct">—</b>.</p>
+  </header>
+
+  <div class="cc-bar">
+    <nav class="cc-tabs" role="tablist" aria-label="Secciones">
+      <button class="cc-tab" role="tab" data-tab="resumen" aria-selected="true">Resumen</button>
+      <button class="cc-tab" role="tab" data-tab="proveedores" aria-selected="false">Proveedores</button>
+      <button class="cc-tab" role="tab" data-tab="insumos" aria-selected="false">Precios de insumos</button>
+      <button class="cc-tab" role="tab" data-tab="facturas" aria-selected="false">Facturas</button>
+      <button class="cc-tab" role="tab" data-tab="calidad" aria-selected="false">Calidad de datos</button>
+      <button class="cc-tab" role="tab" data-tab="ruta" aria-selected="false">Hoja de ruta</button>
+    </nav>
+    <div class="cc-seg" role="group" aria-label="Importes">
+      <span>Importes</span>
+      <button type="button" data-base="neto" aria-pressed="true">Sin IVA</button>
+      <button type="button" data-base="total" aria-pressed="false">Con IVA</button>
+    </div>
+  </div>
+
+  <!-- ===================== RESUMEN ===================== -->
+  <section class="cc-section" id="resumen" data-tab-panel="resumen">
+    <div class="cc-kpis">
+      <div class="cc-kpi">
+        <span class="cc-kpi-label">Gasto del año</span>
+        <span class="cc-kpi-value dash-skeleton" data-draw="k-gasto" data-source="resumen" data-row="0" data-field="neto">—</span>
+        <span class="cc-kpi-note">Facturas emitidas desde enero</span>
+      </div>
+      <div class="cc-kpi">
+        <span class="cc-kpi-label">Promedio por mes completo</span>
+        <span class="cc-kpi-value dash-skeleton" data-draw="k-promedio" data-source="resumen" data-row="0" data-field="promedio_neto">—</span>
+        <span class="cc-kpi-note">Sin los meses que todavía no tienen todas sus facturas</span>
+      </div>
+      <div class="cc-kpi">
+        <span class="cc-kpi-label">Último mes completo: <span class="dash-skeleton" data-draw="k-ult-nombre" data-source="resumen" data-row="0" data-field="ultimo_mes_nombre">—</span></span>
+        <span class="cc-kpi-value dash-skeleton" data-draw="k-ultimo" data-source="resumen" data-row="0" data-field="ultimo_neto">—</span>
+        <span class="cc-kpi-note"><span class="dash-skeleton" data-draw="k-var" data-source="resumen" data-row="0" data-field="var_neto">—</span> contra <span class="dash-skeleton" data-draw="k-prev-nombre" data-source="resumen" data-row="0" data-field="previo_mes_nombre">—</span></span>
+      </div>
+      <div class="cc-kpi">
+        <span class="cc-kpi-label">Facturas cargadas</span>
+        <span class="cc-kpi-value dash-skeleton" data-draw="k-facturas" data-source="resumen" data-row="0" data-field="facturas">—</span>
+        <span class="cc-kpi-note"><span class="dash-skeleton" data-draw="k-fotos" data-source="resumen" data-row="0" data-field="fotos">—</span> leídas desde fotos</span>
+      </div>
+    </div>
+
+    <div class="cc-card" id="gasto-mensual">
+      <h2>Gasto por mes y rubro</h2>
+      <p class="cc-note">Por mes de emisión de la factura. Desde <b class="dash-skeleton" data-draw="t-incompleto" data-source="resumen" data-row="0" data-field="primer_incompleto_nombre">—</b> los meses se ven atenuados porque todavía no tienen todas sus facturas: se archivan cuando se pagan. Se marca incompleto el mes en curso y cada mes final con menos del 85 % de las facturas de un mes habitual.</p>
+      <div class="cc-chart dash-skeleton" data-draw="ch-mensual" data-source="rubro_mes"></div>
+    </div>
+
+    <div class="cc-grid">
+      <div class="cc-card" id="por-rubro">
+        <h2>Gasto por rubro</h2>
+        <p class="cc-note">Acumulado del año, con su peso en el gasto total.</p>
+        <div class="cc-hbars dash-skeleton" data-draw="ch-rubros" data-source="rubros"></div>
+      </div>
+      <div class="cc-card" id="top-proveedores">
+        <h2>Diez proveedores principales</h2>
+        <p class="cc-note">Acumulado del año. Clic en un proveedor para ver su detalle.</p>
+        <div class="cc-hbars dash-skeleton" data-draw="ch-top" data-source="proveedores"></div>
+      </div>
+    </div>
+
+    <div class="cc-card" id="metodo">
+      <h2>Cómo se calcula</h2>
+      <p class="cc-note">Los importes salen del texto de cada factura PDF y de la transcripción de las fotos. "Sin IVA" es el neto gravado, que es el costo real porque Cora recupera el IVA de las facturas A. Las facturas C y las expensas no discriminan IVA y valen lo mismo en las dos vistas. Las notas de crédito restan. Las facturas repetidas con el mismo CAE se cuentan una sola vez. Las facturas emitidas en 2025 que estaban archivadas en enero quedan fuera de los totales del año, pero sí aparecen en la evolución de precios. Por la misma razón que los meses incompletos, la variación de precios de un insumo puede cortar antes de octubre.</p>
+    </div>
+  </section>
+
+  <!-- ===================== PROVEEDORES ===================== -->
+  <section class="cc-section" id="proveedores" data-tab-panel="proveedores" hidden>
+    <div class="cc-card" id="tabla-proveedores">
+      <h2>Proveedores</h2>
+      <p class="cc-note">Clic en un proveedor para ver su gasto mes a mes y sus facturas. Los importes de la tabla muestran las dos vistas.</p>
+      <div class="cc-tools">
+        <input class="cc-search" id="buscar-proveedor" type="search" data-search="proveedores" placeholder="Buscar proveedor o rubro" aria-label="Buscar proveedor o rubro">
+      </div>
+      <div class="cc-wrap">
+        <table class="cc-table" data-source="proveedores" data-row-key="proveedor">
+          <thead><tr>
+            <th data-field="proveedor" aria-sort="none"><button class="cc-sort" data-sort-table="proveedores" data-sort="proveedor">Proveedor</button></th>
+            <th data-field="rubro" class="cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="proveedores" data-sort="rubro">Rubro</button></th>
+            <th data-field="facturas" class="cc-n" aria-sort="none"><button class="cc-sort" data-sort-table="proveedores" data-sort="facturas">Facturas</button></th>
+            <th data-field="meses" class="cc-n cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="proveedores" data-sort="meses">Meses</button></th>
+            <th data-field="neto" class="cc-n" aria-sort="descending"><button class="cc-sort" data-sort-table="proveedores" data-sort="neto">Sin IVA</button></th>
+            <th data-field="total" class="cc-n cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="proveedores" data-sort="total">Con IVA</button></th>
+            <th data-field="pct" class="cc-n" aria-sort="none"><button class="cc-sort" data-sort-table="proveedores" data-sort="pct">% del gasto</button></th>
+          </tr></thead>
+          <tbody data-draw="tb-proveedores"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cc-card" id="detalle-proveedor">
+      <div class="cc-detail-head">
+        <h3 class="dash-skeleton" data-draw="prov-nombre" data-source="proveedores" data-field="proveedor">—</h3>
+        <span class="cc-facts">
+          <span>Rubro <b class="dash-skeleton" data-draw="prov-rubro" data-source="proveedores" data-field="rubro">—</b></span>
+          <span>Gasto del año <b class="dash-skeleton" data-draw="prov-gasto" data-source="proveedores" data-field="neto">—</b></span>
+          <span>Última factura <b class="dash-skeleton" data-draw="prov-ultima" data-source="proveedores" data-field="ultima">—</b></span>
+        </span>
+      </div>
+      <div class="cc-chart cc-short dash-skeleton" data-draw="ch-prov" data-source="proveedor_mes"></div>
+      <div class="cc-wrap">
+        <table class="cc-table" data-source="facturas" data-row-key="archivo">
+          <thead><tr>
+            <th data-field="fecha">Fecha</th>
+            <th data-field="tipo">Tipo</th>
+            <th data-field="neto" class="cc-n">Sin IVA</th>
+            <th data-field="total" class="cc-n">Con IVA</th>
+            <th data-field="detalle" class="cc-hide-sm">Detalle</th>
+            <th data-field="archivo">Archivo</th>
+          </tr></thead>
+          <tbody data-draw="tb-prov-facturas"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== INSUMOS ===================== -->
+  <section class="cc-section" id="insumos" data-tab-panel="insumos" hidden>
+    <div class="cc-card" id="tabla-insumos">
+      <h2>Precio de cada insumo</h2>
+      <p class="cc-note">Precio sin IVA por kilo, litro o unidad, calculado desde cada renglón de factura. La variación compara el primer y el último mes del proveedor principal de ese insumo. "Excel" es el costo cargado en el archivo de costos de ingredientes. Clic en un insumo para ver su evolución.</p>
+      <div class="cc-tools">
+        <input class="cc-search" id="buscar-insumo" type="search" data-search="insumos" placeholder="Buscar insumo o proveedor" aria-label="Buscar insumo o proveedor">
+        <select class="cc-select" id="grupo-insumo" data-draw="sel-grupo" data-source="insumos" aria-label="Grupo de insumos"></select>
+      </div>
+      <div class="cc-wrap">
+        <table class="cc-table" data-source="insumos" data-row-key="insumo">
+          <thead><tr>
+            <th data-field="insumo" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="insumo">Insumo</button></th>
+            <th data-field="proveedor" class="cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="proveedor">Proveedor principal</button></th>
+            <th data-field="unidad" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="unidad">Por</button></th>
+            <th data-field="ultimo_precio" class="cc-n" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="ultimo_precio">Último precio</button></th>
+            <th data-field="variacion" class="cc-n" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="variacion">Variación</button></th>
+            <th data-field="excel" class="cc-n cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="excel">Excel</button></th>
+            <th data-field="vs_excel" class="cc-n cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="insumos" data-sort="vs_excel">Último vs Excel</button></th>
+            <th data-field="gasto" class="cc-n" aria-sort="descending"><button class="cc-sort" data-sort-table="insumos" data-sort="gasto">Gasto</button></th>
+          </tr></thead>
+          <tbody data-draw="tb-insumos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="cc-card" id="detalle-insumo">
+      <div class="cc-detail-head">
+        <h3 class="dash-skeleton" data-draw="ins-nombre" data-source="insumos" data-field="insumo">—</h3>
+        <span class="cc-facts">
+          <span>Último precio <b class="dash-skeleton" data-draw="ins-precio" data-source="insumos" data-field="ultimo_precio">—</b> por <b class="dash-skeleton" data-draw="ins-unidad" data-source="insumos" data-field="unidad">—</b></span>
+          <span>Variación <b class="dash-skeleton" data-draw="ins-var" data-source="insumos" data-field="variacion">—</b></span>
+          <span>Desde <b class="dash-skeleton" data-draw="ins-desde" data-source="insumos" data-field="primer_mes_nombre">—</b> hasta <b class="dash-skeleton" data-draw="ins-hasta" data-source="insumos" data-field="ultimo_mes_nombre">—</b></span>
+        </span>
+      </div>
+      <p class="cc-note">Una línea por proveedor. Los precios atípicos, más de tres veces lejos de la mediana del insumo, quedan fuera del gráfico pero figuran en la tabla.</p>
+      <div class="cc-chart dash-skeleton" data-draw="ch-precio" data-source="precios"></div>
+      <div class="cc-wrap">
+        <table class="cc-table" data-source="renglones" data-row-key="id">
+          <thead><tr>
+            <th data-field="fecha">Fecha</th>
+            <th data-field="proveedor" class="cc-hide-sm">Proveedor</th>
+            <th data-field="descripcion">Descripción en la factura</th>
+            <th data-field="cantidad" class="cc-n cc-hide-sm">Cantidad</th>
+            <th data-field="precio_base" class="cc-n">Precio por unidad base</th>
+            <th data-field="importe" class="cc-n">Importe sin IVA</th>
+          </tr></thead>
+          <tbody data-draw="tb-renglones"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FACTURAS ===================== -->
+  <section class="cc-section" id="facturas" data-tab-panel="facturas" hidden>
+    <div class="cc-card" id="tabla-facturas">
+      <h2>Todas las facturas</h2>
+      <p class="cc-note">Cada comprobante leído, con la ruta del archivo dentro de la carpeta de proveedores 2026 de OneDrive. "Detalle" dice si los renglones de la factura suman su neto.</p>
+      <div class="cc-tools">
+        <input class="cc-search" id="buscar-factura" type="search" data-search="facturas" placeholder="Buscar proveedor, rubro, fecha o archivo" aria-label="Buscar facturas">
+      </div>
+      <div class="cc-wrap cc-tall">
+        <table class="cc-table" data-source="facturas" data-row-key="archivo">
+          <thead><tr>
+            <th data-field="fecha" aria-sort="descending"><button class="cc-sort" data-sort-table="facturas" data-sort="fecha">Fecha</button></th>
+            <th data-field="proveedor" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="proveedor">Proveedor</button></th>
+            <th data-field="rubro" class="cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="rubro">Rubro</button></th>
+            <th data-field="tipo" class="cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="tipo">Tipo</button></th>
+            <th data-field="neto" class="cc-n" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="neto">Sin IVA</button></th>
+            <th data-field="total" class="cc-n" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="total">Con IVA</button></th>
+            <th data-field="fuente" class="cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="fuente">Origen</button></th>
+            <th data-field="detalle" class="cc-hide-sm" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="detalle">Detalle</button></th>
+            <th data-field="archivo" aria-sort="none"><button class="cc-sort" data-sort-table="facturas" data-sort="archivo">Archivo</button></th>
+          </tr></thead>
+          <tbody data-draw="tb-facturas"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== CALIDAD ===================== -->
+  <section class="cc-section" id="calidad" data-tab-panel="calidad" hidden>
+    <div class="cc-grid">
+      <div class="cc-card" id="temas-calidad">
+        <h2>Qué revisar en el archivo</h2>
+        <p class="cc-note">Problemas encontrados al leer la carpeta y el Excel de costos. Clic en un tema para ver sus casos.</p>
+        <div class="cc-wrap">
+          <table class="cc-table" data-source="calidad_temas" data-row-key="tema">
+            <thead><tr>
+              <th data-field="tema">Tema</th>
+              <th data-field="casos" class="cc-n">Casos</th>
+            </tr></thead>
+            <tbody data-draw="tb-temas"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="cc-card" id="casos-calidad">
+        <h2 class="dash-skeleton" data-draw="tema-nombre" data-source="calidad_temas" data-field="tema">—</h2>
+        <p class="cc-note">Cada caso con el archivo o la fila del Excel al que se refiere.</p>
+        <div class="cc-wrap">
+          <table class="cc-table" data-source="calidad" data-row-key="id">
+            <thead><tr>
+              <th data-field="proveedor">Proveedor</th>
+              <th data-field="detalle">Detalle</th>
+              <th data-field="archivo" class="cc-hide-sm">Archivo</th>
+            </tr></thead>
+            <tbody data-draw="tb-calidad"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== HOJA DE RUTA ===================== -->
+  <section class="cc-section" id="ruta" data-tab-panel="ruta" hidden>
+    <div class="cc-road">
+      <div class="cc-card">
+        <span class="cc-stage cc-now">Versión 1 · Ahora</span>
+        <h2>Tablero de costos</h2>
+        <ul>
+          <li>Lectura automática de las facturas PDF y transcripción de las fotos de la carpeta de proveedores.</li>
+          <li>Gasto por mes, rubro y proveedor, con y sin IVA.</li>
+          <li>Precio por kilo, litro o unidad de cada insumo y su evolución por proveedor.</li>
+          <li>Comparación contra el Excel de costos de ingredientes.</li>
+          <li>Reporte de calidad del archivo.</li>
+          <li>Se actualiza a pedido: se vuelve a bajar la carpeta de OneDrive y Claude regenera el tablero.</li>
+        </ul>
+      </div>
+      <div class="cc-card">
+        <span class="cc-stage">Versión 2</span>
+        <h2>Márgenes por producto</h2>
+        <ul>
+          <li>Integración con Bistrosoft para traer precios de venta y recetas de lo que se prepara en el café.</li>
+          <li>Costo de cada producto a partir de sus ingredientes y de los precios de este tablero.</li>
+          <li>Margen por producto y cómo cambia cuando suben los insumos.</li>
+        </ul>
+      </div>
+      <div class="cc-card">
+        <span class="cc-stage">Versión 3</span>
+        <h2>Sitio propio</h2>
+        <ul>
+          <li>Hosting con base de datos.</li>
+          <li>Usuarios con acceso y permisos.</li>
+        </ul>
+      </div>
+      <div class="cc-card">
+        <span class="cc-stage">Backlog</span>
+        <h2>Ideas para más adelante</h2>
+        <ul>
+          <li>Leer las facturas directo de la carpeta de OneDrive sincronizada.</li>
+          <li>Leer las facturas del Gmail de cobranzas, como hace hoy el agente de Fabián.</li>
+          <li>Actualización automática diaria del tablero.</li>
+          <li>Costos ajustados por inflación, para ver qué proveedor sube por encima del índice de precios.</li>
+          <li>Alertas cuando un insumo sube más de lo esperado o falta una factura fija del mes, como el alquiler.</li>
+          <li>Recuperar las carpetas que OneDrive no descargó.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+/* ---------- cálculos ---------- */
+dash.calc('rubro_mes', {
+  inputs: ['facturas'],
+  title: 'Gasto por mes y rubro',
+  description: 'Suma de las facturas emitidas en 2026, por mes de emisión y rubro del proveedor.',
+  fn: (facturas) => {
+    const acc = {};
+    for (const r of facturas) {
+      if (r.mes < '2026-01') continue;
+      const k = r.mes + '|' + r.rubro;
+      acc[k] = acc[k] || {mes: r.mes, rubro: r.rubro, neto: 0, total: 0};
+      acc[k].neto += Number(r.neto);
+      acc[k].total += Number(r.total);
+    }
+    return Object.values(acc).sort((a, b) => (a.mes + a.rubro < b.mes + b.rubro ? -1 : 1));
+  },
+});
+
+dash.calc('rubros', {
+  inputs: ['facturas'],
+  title: 'Gasto por rubro',
+  description: 'Gasto del año por rubro y su peso en el total.',
+  fn: (facturas) => {
+    const f = facturas.filter((r) => r.mes >= '2026-01');
+    const tn = f.reduce((s, r) => s + Number(r.neto), 0);
+    const tt = f.reduce((s, r) => s + Number(r.total), 0);
+    const acc = {};
+    for (const r of f) {
+      acc[r.rubro] = acc[r.rubro] || {rubro: r.rubro, neto: 0, total: 0};
+      acc[r.rubro].neto += Number(r.neto);
+      acc[r.rubro].total += Number(r.total);
+    }
+    return Object.values(acc).map((r) => ({...r, pct_neto: r.neto / tn, pct_total: r.total / tt})).sort((a, b) => b.neto - a.neto);
+  },
+});
+
+dash.calc('proveedores', {
+  inputs: ['facturas'],
+  title: 'Gasto por proveedor',
+  description: 'Facturas, meses con compras, gasto del año y peso en el gasto sin IVA, por proveedor.',
+  fn: (facturas) => {
+    const f = facturas.filter((r) => r.mes >= '2026-01');
+    const tn = f.reduce((s, r) => s + Number(r.neto), 0);
+    const tt = f.reduce((s, r) => s + Number(r.total), 0);
+    const acc = {};
+    for (const r of f) {
+      const a = (acc[r.proveedor] = acc[r.proveedor] || {proveedor: r.proveedor, rubro: r.rubro, facturas: 0, neto: 0, total: 0, meses: new Set(), ultima: ''});
+      a.facturas += 1;
+      a.neto += Number(r.neto);
+      a.total += Number(r.total);
+      a.meses.add(r.mes);
+      if (r.fecha > a.ultima) a.ultima = r.fecha;
+    }
+    return Object.values(acc).map((a) => ({...a, meses: a.meses.size, pct: a.neto / tn, pct_total: a.total / tt})).sort((a, b) => b.neto - a.neto);
+  },
+});
+
+dash.calc('proveedor_mes', {
+  inputs: ['facturas'],
+  title: 'Gasto por proveedor y mes',
+  description: 'Gasto de cada proveedor por mes de emisión en 2026.',
+  fn: (facturas) => {
+    const acc = {};
+    for (const r of facturas) {
+      if (r.mes < '2026-01') continue;
+      const k = r.proveedor + '|' + r.mes;
+      acc[k] = acc[k] || {proveedor: r.proveedor, mes: r.mes, neto: 0, total: 0, facturas: 0};
+      acc[k].neto += Number(r.neto);
+      acc[k].total += Number(r.total);
+      acc[k].facturas += 1;
+    }
+    return Object.values(acc);
+  },
+});
+
+dash.calc('resumen', {
+  inputs: ['facturas'],
+  title: 'Resumen del año',
+  description: 'Totales de 2026. El mes en curso y los meses finales con menos del 85 % de las facturas habituales se toman como incompletos y no entran en el promedio ni en la comparación.',
+  fn: (facturas) => {
+    const nombres = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+    const f = facturas.filter((r) => r.mes >= '2026-01');
+    const sum = (rows, k) => rows.reduce((s, r) => s + Number(r[k]), 0);
+    const meses = [...new Set(f.map((r) => r.mes))].sort();
+    const cuenta = (m) => f.filter((r) => r.mes === m).length;
+    const previos = meses.slice(0, -1).map(cuenta).sort((a, b) => a - b);
+    const mediana = previos[Math.floor(previos.length / 2)];
+    // Incompletos: el mes en curso y los meses finales con menos del 85 % de las facturas habituales,
+    // porque las facturas se archivan cuando se pagan.
+    let corte = meses.length - 1;
+    while (corte > 0 && cuenta(meses[corte - 1]) < 0.85 * mediana) corte -= 1;
+    const completos = meses.slice(0, corte);
+    const incompletos = meses.slice(corte);
+    const ult = completos[completos.length - 1];
+    const prev = completos[completos.length - 2];
+    const deMes = (m) => f.filter((r) => r.mes === m);
+    const enComp = f.filter((r) => completos.includes(r.mes));
+    const top = (key) => {
+      const acc = {};
+      for (const r of f) acc[r[key]] = (acc[r[key]] || 0) + Number(r.neto);
+      return Object.entries(acc).sort((a, b) => b[1] - a[1])[0];
+    };
+    const neto = sum(f, 'neto');
+    const [rubroTop, rubroNeto] = top('rubro');
+    const [provTop, provNeto] = top('proveedor');
+    return [{
+      neto, total: sum(f, 'total'),
+      facturas: f.length,
+      fotos: f.filter((r) => r.fuente === 'foto').length,
+      proveedores: new Set(f.map((r) => r.proveedor)).size,
+      promedio_neto: sum(enComp, 'neto') / completos.length,
+      promedio_total: sum(enComp, 'total') / completos.length,
+      ultimo_mes: ult, ultimo_mes_nombre: nombres[Number(ult.slice(5)) - 1],
+      previo_mes_nombre: nombres[Number(prev.slice(5)) - 1],
+      ultimo_neto: sum(deMes(ult), 'neto'), ultimo_total: sum(deMes(ult), 'total'),
+      var_neto: sum(deMes(ult), 'neto') / sum(deMes(prev), 'neto') - 1,
+      var_total: sum(deMes(ult), 'total') / sum(deMes(prev), 'total') - 1,
+      meses_incompletos: incompletos.join(','),
+      primer_incompleto_nombre: nombres[Number(incompletos[0].slice(5)) - 1],
+      rubro_top: rubroTop, rubro_top_pct: rubroNeto / neto,
+      proveedor_top: provTop, proveedor_top_pct: provNeto / neto,
+    }];
+  },
+});
+
+dash.calc('precios', {
+  inputs: ['renglones'],
+  title: 'Precio por insumo, proveedor y mes',
+  description: 'Precio sin IVA por unidad base, promedio ponderado por cantidad, sin los renglones atípicos.',
+  fn: (renglones) => {
+    const acc = {};
+    for (const r of renglones) {
+      const p = Number(r.precio_base);
+      if (!r.insumo || !p || r.atipico === 'si') continue;
+      const q = Number(r.cantidad_base);
+      const k = r.insumo + '|' + r.proveedor + '|' + r.mes;
+      acc[k] = acc[k] || {insumo: r.insumo, proveedor: r.proveedor, mes: r.mes, unidad: r.unidad_base, cantidad: 0, importe: 0};
+      acc[k].cantidad += q;
+      acc[k].importe += q * p;
+    }
+    return Object.values(acc).map((a) => ({...a, precio: a.importe / a.cantidad})).sort((a, b) => (a.mes < b.mes ? -1 : 1));
+  },
+});
+
+dash.calc('insumos', {
+  inputs: ['precios', 'renglones', 'costos_excel'],
+  title: 'Insumos con precio comparable',
+  description: 'Por insumo: proveedor principal, primer y último precio de ese proveedor, variación, costo del Excel y gasto del año.',
+  fn: (precios, renglones, costos_excel) => {
+    const nombres = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+    const llave = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().trim();
+    const excel = {};
+    for (const e of costos_excel) if (Number(e.costo) > 0) excel[llave(e.ingrediente)] = {costo: Number(e.costo), unidad: e.unidad};
+    const gasto = {}, grupo = {}, porProv = {};
+    for (const r of renglones) {
+      if (!r.insumo) continue;
+      if (r.mes < '2026-01') continue;
+      gasto[r.insumo] = (gasto[r.insumo] || 0) + Number(r.importe);
+      grupo[r.insumo] = grupo[r.insumo] || r.grupo;
+    }
+    for (const p of precios) {
+      const k = p.insumo + '|' + p.proveedor;
+      porProv[k] = porProv[k] || {insumo: p.insumo, proveedor: p.proveedor, importe: 0, serie: []};
+      porProv[k].importe += p.importe;
+      porProv[k].serie.push(p);
+    }
+    const principal = {};
+    for (const s of Object.values(porProv)) if (!principal[s.insumo] || s.importe > principal[s.insumo].importe) principal[s.insumo] = s;
+    const mesNombre = (m) => nombres[Number(m.slice(5)) - 1] + ' ' + m.slice(0, 4);
+    return Object.values(principal).map((s) => {
+      const a = s.serie[0], b = s.serie[s.serie.length - 1];
+      const ex = excel[llave(s.insumo)];
+      const exCosto = ex && ex.unidad === a.unidad ? ex.costo : null;
+      return {
+        insumo: s.insumo, grupo: grupo[s.insumo] || '', proveedor: s.proveedor, unidad: a.unidad,
+        primer_mes: a.mes, primer_mes_nombre: mesNombre(a.mes), primer_precio: a.precio,
+        ultimo_mes: b.mes, ultimo_mes_nombre: mesNombre(b.mes), ultimo_precio: b.precio,
+        variacion: s.serie.length > 1 ? b.precio / a.precio - 1 : null,
+        excel: exCosto, vs_excel: exCosto ? b.precio / exCosto - 1 : null,
+        gasto: gasto[s.insumo] || 0,
+      };
+    }).sort((x, y) => y.gasto - x.gasto);
+  },
+});
+
+dash.calc('calidad_temas', {
+  inputs: ['calidad'],
+  title: 'Temas de calidad',
+  description: 'Cantidad de casos por tema de revisión.',
+  fn: (calidad) => {
+    const acc = {};
+    for (const r of calidad) acc[r.tema] = (acc[r.tema] || 0) + 1;
+    return Object.entries(acc).map(([tema, casos]) => ({tema, casos})).sort((a, b) => b.casos - a.casos);
+  },
+});
+</script>
+
+<script>
+/* ---------- formato y utilidades compartidas ---------- */
+window.cc = (() => {
+  const nf0 = new Intl.NumberFormat('es-AR', {maximumFractionDigits: 0});
+  const nf1 = new Intl.NumberFormat('es-AR', {minimumFractionDigits: 1, maximumFractionDigits: 1});
+  const nf2 = new Intl.NumberFormat('es-AR', {maximumFractionDigits: 2});
+  const MES = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  const money = (v) => {
+    if (v == null || isNaN(v)) return '—';
+    const a = Math.abs(v), s = v < 0 ? '−' : '';
+    if (a >= 1e6) return s + '$ ' + nf1.format(a / 1e6) + ' M';
+    return s + '$ ' + nf0.format(a);
+  };
+  const full = (v) => (v == null || v === '' || isNaN(v) ? '—' : (Number(v) < 0 ? '−' : '') + '$ ' + nf0.format(Math.abs(Number(v))));
+  const pct = (v) => (v == null || isNaN(v) ? '—' : nf1.format(v * 100) + ' %');
+  const signed = (v) => (v == null || isNaN(v) ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + nf1.format(Math.abs(v) * 100) + ' %');
+  const int = (v) => nf0.format(v);
+  const qty = (v) => nf2.format(v);
+  const mesCorto = (m) => MES[Number(m.slice(5)) - 1] + (m.slice(0, 4) === '2026' ? '' : ' ' + m.slice(2, 4));
+  const fecha = (d) => (d ? d.slice(8, 10) + '/' + d.slice(5, 7) + '/' + d.slice(0, 4) : '—');
+  const enc = (s) => String(s).replace(/%/g, '%25').replace(/&/g, '%26').replace(/=/g, '%3D');
+  const base = () => (dash.params().base === 'total' ? 'total' : 'neto');
+  const RUBROS = ['Café e insumos de barra', 'Lácteos, quesos y fiambres', 'Pastelería y panificados', 'Alquiler y expensas',
+    'Descartables y limpieza', 'Servicios y terceros', 'Verdulería y frutas', 'Almacén, secos y vinos', 'Equipamiento y vajilla'];
+  const color = (rubro) => {
+    const i = RUBROS.indexOf(rubro);
+    return i >= 0 && i < dash.colors.length ? dash.colors[i] : 'var(--cds-chart-muted)';
+  };
+  // Estado de carga: devuelve true si todos los datasets están listos; si no, deja el elemento en su estado vacío.
+  const ready = (el, ids, empty = '—') => {
+    const st = ids.map((id) => dash.data(id).status);
+    if (st.every((s) => s === 'ok')) { el.classList.remove('dash-skeleton'); return true; }
+    if (st.some((s) => s === 'error' || s === 'declined' || s === 'missing')) {
+      el.classList.remove('dash-skeleton');
+      const d = document.createElement('div');
+      d.className = 'cc-fail';
+      d.textContent = 'No se pudo cargar';
+      el.replaceChildren(d);
+    } else {
+      el.classList.add('dash-skeleton');
+      el.replaceChildren(empty ? document.createTextNode(empty) : '');
+    }
+    return false;
+  };
+  const sort = {proveedores: {k: 'neto', d: -1}, insumos: {k: 'gasto', d: -1}, facturas: {k: 'fecha', d: -1}};
+  const query = {proveedores: '', insumos: '', facturas: ''};
+  const sorted = (rows, t) => {
+    const {k, d} = sort[t];
+    return rows.slice().sort((a, b) => {
+      const x = a[k], y = b[k];
+      const nx = Number(x), ny = Number(y);
+      if (x !== '' && y !== '' && x != null && y != null && !isNaN(nx) && !isNaN(ny)) return (nx - ny) * d;
+      if (x == null || x === '') return 1;
+      if (y == null || y === '') return -1;
+      return String(x).localeCompare(String(y), 'es') * d;
+    });
+  };
+  const matches = (r, t, keys) => {
+    const q = query[t].trim().toLowerCase();
+    return !q || keys.some((k) => String(r[k] ?? '').toLowerCase().includes(q));
+  };
+  // Escribe filas de tabla: cols = [[campo, formato, clase]]
+  const rows = (tbody, data, cols, keyOf, opts = {}) => {
+    const frag = document.createDocumentFragment();
+    for (const r of data) {
+      const tr = document.createElement('tr');
+      tr.dataset.key = keyOf(r);
+      if (opts.clickable) { tr.className = 'cc-row'; tr.tabIndex = 0; tr.setAttribute('aria-selected', String(opts.selected === tr.dataset.key)); }
+      for (const [field, fmt, cls] of cols) {
+        const td = document.createElement('td');
+        const v = r[field];
+        td.textContent = fmt ? fmt(v, r) : (v ?? '');
+        if (cls) td.className = typeof cls === 'function' ? cls(v, r) : cls;
+        tr.appendChild(td);
+      }
+      frag.appendChild(tr);
+    }
+    tbody.replaceChildren(frag);
+  };
+  const tip = (el) => {
+    let t = el.querySelector('.cc-tip');
+    if (!t) { t = document.createElement('div'); t.className = 'cc-tip'; t.hidden = true; el.appendChild(t); }
+    return t;
+  };
+  const showTip = (el, t, x, y, head, lines) => {
+    t.replaceChildren();
+    const h = document.createElement('div'); h.className = 'cc-tip-h'; h.textContent = head; t.appendChild(h);
+    for (const [sw, name, val] of lines) {
+      const r = document.createElement('div'); r.className = 'cc-tip-r';
+      const a = document.createElement('span');
+      if (sw) { const s = document.createElement('i'); s.className = 'cc-sw'; s.style.background = sw; a.appendChild(s); }
+      a.appendChild(document.createTextNode(name));
+      const b = document.createElement('span'); b.textContent = val;
+      r.append(a, b); t.appendChild(r);
+    }
+    t.hidden = false;
+    const w = el.clientWidth, tw = t.offsetWidth, th = t.offsetHeight;
+    t.style.left = Math.max(0, Math.min(w - tw, x + 12)) + 'px';
+    t.style.top = Math.max(0, y - th - 8) + 'px';
+  };
+  const axisClean = (g) => g.attr('font-size', null).attr('font-family', null).call((s) => s.select('.domain').remove());
+  const textWidth = (svg, strings) => {
+    const t = svg.append('text').attr('visibility', 'hidden');
+    let w = 0;
+    for (const s of strings) { t.text(s); w = Math.max(w, t.node().getComputedTextLength()); }
+    t.remove();
+    return w;
+  };
+  return {money, full, pct, signed, int, qty, mesCorto, fecha, enc, base, color, RUBROS, ready, sort, query, sorted, matches, rows, tip, showTip, axisClean, textWidth};
+})();
+</script>
+
+<script>
+/* ---------- pestañas, filtros y controles ---------- */
+const TABS = ['resumen', 'proveedores', 'insumos', 'facturas', 'calidad', 'ruta'];
+const fromHash = location.hash.slice(1);
+if (TABS.includes(fromHash)) dash.setParams({tab: fromHash});
+
+for (const b of document.querySelectorAll('.cc-tab')) {
+  b.addEventListener('click', () => { dash.setParams({tab: b.dataset.tab}); dash.setLink(b.dataset.tab); });
+}
+for (const b of document.querySelectorAll('[data-base]')) {
+  b.addEventListener('click', () => dash.setParams({base: b.dataset.base}));
+}
+for (const inp of document.querySelectorAll('[data-search]')) {
+  inp.addEventListener('input', () => { cc.query[inp.dataset.search] = inp.value; dash.draw('tb-' + inp.dataset.search); });
+}
+for (const btn of document.querySelectorAll('.cc-sort')) {
+  btn.addEventListener('click', () => {
+    const t = btn.dataset.sortTable, k = btn.dataset.sort, s = cc.sort[t];
+    s.d = s.k === k ? -s.d : (['proveedor', 'rubro', 'insumo', 'unidad', 'tipo', 'fuente', 'detalle', 'archivo'].includes(k) ? 1 : -1);
+    s.k = k;
+    for (const th of document.querySelectorAll(`.cc-sort[data-sort-table="${t}"]`)) {
+      th.closest('th')?.setAttribute('aria-sort', th === btn ? (s.d > 0 ? 'ascending' : 'descending') : 'none');
+    }
+    dash.draw('tb-' + t);
+  });
+}
+const pick = (selector, param) => {
+  for (const tb of document.querySelectorAll(selector)) {
+    const choose = (e) => {
+      const tr = e.target.closest('tr[data-key]');
+      if (tr) dash.setParams({[param]: tr.dataset.key});
+    };
+    tb.addEventListener('click', choose);
+    tb.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(e); } });
+  }
+};
+pick('[data-draw="tb-proveedores"]', 'proveedor');
+pick('[data-draw="tb-insumos"]', 'insumo');
+pick('[data-draw="tb-temas"]', 'tema');
+
+dash.onData(() => {
+  const p = dash.params();
+  const tab = TABS.includes(p.tab) ? p.tab : 'resumen';
+  for (const s of document.querySelectorAll('[data-tab-panel]')) s.hidden = s.dataset.tabPanel !== tab;
+  for (const b of document.querySelectorAll('.cc-tab')) b.setAttribute('aria-selected', String(b.dataset.tab === tab));
+  const base = p.base === 'total' ? 'total' : 'neto';
+  for (const b of document.querySelectorAll('[data-base]')) b.setAttribute('aria-pressed', String(b.dataset.base === base));
+});
+</script>
+
+<script>
+/* ---------- encabezado y tarjetas del resumen ---------- */
+const kpi = (name, field, fmt) => dash.draw(name, (el) => {
+  if (!cc.ready(el, ['resumen'])) return;
+  const f = typeof field === 'function' ? field() : field;
+  el.dataset.field = f;
+  const v = dash.data('resumen').data[0][f];
+  el.textContent = fmt(v);
+});
+kpi('t-gasto', () => cc.base(), cc.money);
+kpi('t-proveedores', 'proveedores', cc.int);
+kpi('t-rubro', 'rubro_top', (v) => v);
+kpi('t-rubro-pct', 'rubro_top_pct', cc.pct);
+kpi('t-prov', 'proveedor_top', (v) => v);
+kpi('t-prov-pct', 'proveedor_top_pct', cc.pct);
+kpi('k-gasto', () => cc.base(), cc.money);
+kpi('k-promedio', () => 'promedio_' + cc.base(), cc.money);
+kpi('k-ult-nombre', 'ultimo_mes_nombre', (v) => v);
+kpi('k-prev-nombre', 'previo_mes_nombre', (v) => v);
+kpi('k-ultimo', () => 'ultimo_' + cc.base(), cc.money);
+kpi('k-facturas', 'facturas', cc.int);
+kpi('k-fotos', 'fotos', cc.int);
+kpi('t-incompleto', 'primer_incompleto_nombre', (v) => v);
+dash.draw('k-var', (el) => {
+  if (!cc.ready(el, ['resumen'])) return;
+  const f = 'var_' + cc.base();
+  el.dataset.field = f;
+  const v = dash.data('resumen').data[0][f];
+  el.textContent = cc.signed(v);
+  el.className = v > 0 ? 'cc-up' : v < 0 ? 'cc-down' : '';
+});
+
+/* barras apiladas por mes y rubro */
+dash.draw('ch-mensual', (el) => {
+  if (!cc.ready(el, ['rubro_mes', 'resumen'], '')) return;
+  const base = cc.base();
+  const rows = dash.data('rubro_mes').data;
+  const inc = dash.data('resumen').data[0].meses_incompletos.split(',');
+  const meses = [...new Set(rows.map((r) => r.mes))].sort();
+  const rubros = cc.RUBROS.filter((r) => rows.some((x) => x.rubro === r)).concat([...new Set(rows.map((r) => r.rubro))].filter((r) => !cc.RUBROS.includes(r)));
+  const byMes = meses.map((m) => {
+    const o = {mes: m};
+    for (const r of rubros) o[r] = 0;
+    for (const x of rows) if (x.mes === m) o[x.rubro] = x[base];
+    return o;
+  });
+  const stack = d3.stack().keys(rubros)(byMes);
+  const W = Math.max(280, el.clientWidth), H = 260;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H + 8}`);
+  const ymax = d3.max(byMes, (o) => d3.sum(rubros, (r) => o[r])) || 1;
+  const y0 = d3.scaleLinear([0, ymax], [H - 24, 8]).nice();
+  const ticks = y0.ticks(5);
+  const left = cc.textWidth(svg, ticks.map(cc.money)) + 10;
+  const x = d3.scaleBand(meses, [left, W - 4]).padding(0.28);
+  svg.append('g').selectAll('line').data(ticks).join('line')
+    .attr('x1', left).attr('x2', W - 4).attr('y1', (t) => y0(t)).attr('y2', (t) => y0(t))
+    .style('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(ticks).join('text')
+    .attr('x', left - 8).attr('y', (t) => y0(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text(cc.money);
+  const g = svg.append('g');
+  g.selectAll('g').data(stack).join('g').style('fill', (s) => cc.color(s.key))
+    .selectAll('rect').data((s) => s.map((d) => ({...d, key: s.key}))).join('rect')
+    .attr('x', (d) => x(d.data.mes)).attr('width', x.bandwidth())
+    .attr('y', (d) => y0(d[1])).attr('height', (d) => Math.max(0, y0(d[0]) - y0(d[1])))
+    .attr('opacity', (d) => (inc.includes(d.data.mes) ? 0.35 : 1));
+  svg.append('g').selectAll('text').data(meses).join('text')
+    .attr('x', (m) => x(m) + x.bandwidth() / 2).attr('y', H - 6).attr('text-anchor', 'middle')
+    .text((m) => cc.mesCorto(m));
+  const t = cc.tip(el);
+  svg.append('g').selectAll('rect').data(byMes).join('rect')
+    .attr('x', (o) => x(o.mes) - x.step() * x.paddingInner() / 2).attr('width', x.step())
+    .attr('y', 0).attr('height', H).style('fill', 'transparent')
+    .on('mousemove', (ev, o) => {
+      const [px, py] = d3.pointer(ev, el);
+      const lines = rubros.filter((r) => o[r]).sort((a, b) => o[b] - o[a]).map((r) => [cc.color(r), r, cc.money(o[r])]);
+      lines.push([null, 'Total', cc.money(d3.sum(rubros, (r) => o[r]))]);
+      cc.showTip(el, t, px, py, cc.mesCorto(o.mes) + ' ' + o.mes.slice(0, 4) + (inc.includes(o.mes) ? ' · incompleto' : ''), lines);
+    })
+    .on('mouseleave', () => { t.hidden = true; });
+  const leg = document.createElement('div');
+  leg.className = 'cc-legend';
+  for (const r of rubros) {
+    const s = document.createElement('span');
+    const sw = document.createElement('i'); sw.className = 'cc-sw'; sw.style.background = cc.color(r);
+    s.append(sw, document.createTextNode(r));
+    leg.appendChild(s);
+  }
+  el.appendChild(leg);
+});
+
+/* barras horizontales */
+const hbars = (el, items, onPick) => {
+  const max = d3.max(items, (d) => d.value) || 1;
+  el.replaceChildren(...items.map((d) => {
+    const row = document.createElement('div');
+    row.className = 'cc-hb';
+    if (onPick) { row.style.cursor = 'pointer'; row.addEventListener('click', () => onPick(d)); }
+    const l = document.createElement('span'); l.className = 'cc-hb-l'; l.textContent = d.label; l.title = d.label;
+    const tr = document.createElement('span'); tr.className = 'cc-hb-t';
+    const f = document.createElement('span'); f.className = 'cc-hb-f';
+    f.style.width = (100 * d.value / max) + '%'; f.style.background = d.color; f.style.display = 'block';
+    tr.appendChild(f);
+    const v = document.createElement('span'); v.className = 'cc-hb-v'; v.textContent = cc.money(d.value) + ' · ' + cc.pct(d.pct);
+    row.append(l, tr, v);
+    return row;
+  }));
+};
+dash.draw('ch-rubros', (el) => {
+  if (!cc.ready(el, ['rubros'], '')) return;
+  const base = cc.base();
+  hbars(el, dash.data('rubros').data.map((r) => ({label: r.rubro, value: r[base], pct: r['pct_' + base], color: cc.color(r.rubro)})));
+});
+dash.draw('ch-top', (el) => {
+  if (!cc.ready(el, ['proveedores'], '')) return;
+  const base = cc.base();
+  const rows = dash.data('proveedores').data.slice().sort((a, b) => b[base] - a[base]).slice(0, 10);
+  hbars(el, rows.map((r) => ({label: r.proveedor, value: r[base], pct: base === 'neto' ? r.pct : r.pct_total, color: cc.color(r.rubro)})),
+    (d) => dash.setParams({tab: 'proveedores', proveedor: d.label}));
+});
+</script>
+
+<script>
+/* ---------- proveedores ---------- */
+const provSel = () => {
+  const rows = dash.data('proveedores').data;
+  const p = dash.params().proveedor;
+  return rows.find((r) => r.proveedor === p) || rows[0];
+};
+dash.draw('tb-proveedores', (tb) => {
+  if (dash.data('proveedores').status !== 'ok') { tb.replaceChildren(); return; }
+  const sel = provSel();
+  const data = cc.sorted(dash.data('proveedores').data.filter((r) => cc.matches(r, 'proveedores', ['proveedor', 'rubro'])), 'proveedores');
+  cc.rows(tb, data, [
+    ['proveedor'], ['rubro', null, 'cc-hide-sm'], ['facturas', cc.int, 'cc-n'], ['meses', cc.int, 'cc-n cc-hide-sm'],
+    ['neto', cc.full, 'cc-n'], ['total', cc.full, 'cc-n cc-hide-sm'], ['pct', cc.pct, 'cc-n'],
+  ], (r) => r.proveedor, {clickable: true, selected: sel && sel.proveedor});
+});
+const provField = (name, field, fmt) => dash.draw(name, (el) => {
+  if (!cc.ready(el, ['proveedores'])) return;
+  const r = provSel();
+  if (!r) { el.textContent = '—'; return; }
+  const f = typeof field === 'function' ? field() : field;
+  el.dataset.field = f;
+  el.dataset.where = 'proveedor=' + cc.enc(r.proveedor);
+  el.textContent = fmt(r[f]);
+});
+provField('prov-nombre', 'proveedor', (v) => v);
+provField('prov-rubro', 'rubro', (v) => v);
+provField('prov-gasto', () => cc.base(), cc.full);
+provField('prov-ultima', 'ultima', cc.fecha);
+
+dash.draw('ch-prov', (el) => {
+  if (!cc.ready(el, ['proveedor_mes', 'proveedores', 'resumen'], '')) return;
+  const sel = provSel();
+  if (!sel) { el.replaceChildren(); return; }
+  const base = cc.base();
+  const inc = dash.data('resumen').data[0].meses_incompletos.split(',');
+  const todos = [...new Set(dash.data('proveedor_mes').data.map((r) => r.mes))].sort();
+  const rows = todos.map((m) => dash.data('proveedor_mes').data.find((r) => r.proveedor === sel.proveedor && r.mes === m) || {mes: m, neto: 0, total: 0, facturas: 0});
+  const W = Math.max(280, el.clientWidth), H = 170;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H + 4}`);
+  const y = d3.scaleLinear([0, d3.max(rows, (r) => r[base]) || 1], [H - 22, 6]).nice();
+  const ticks = y.ticks(4);
+  const left = cc.textWidth(svg, ticks.map(cc.money)) + 10;
+  const x = d3.scaleBand(todos, [left, W - 4]).padding(0.3);
+  svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', left).attr('x2', W - 4)
+    .attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).style('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(ticks).join('text').attr('x', left - 8).attr('y', (t) => y(t))
+    .attr('dy', '0.32em').attr('text-anchor', 'end').text(cc.money);
+  svg.append('g').selectAll('rect').data(rows).join('rect')
+    .attr('x', (r) => x(r.mes)).attr('width', x.bandwidth()).attr('y', (r) => y(r[base]))
+    .attr('height', (r) => Math.max(0, y(0) - y(r[base]))).attr('rx', 3)
+    .style('fill', cc.color(sel.rubro)).attr('opacity', (r) => (inc.includes(r.mes) ? 0.35 : 1));
+  svg.append('g').selectAll('text').data(todos).join('text').attr('x', (m) => x(m) + x.bandwidth() / 2)
+    .attr('y', H - 4).attr('text-anchor', 'middle').text(cc.mesCorto);
+  const t = cc.tip(el);
+  svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', (r) => x(r.mes) - x.step() * 0.15).attr('width', x.step())
+    .attr('y', 0).attr('height', H).style('fill', 'transparent')
+    .on('mousemove', (ev, r) => {
+      const [px, py] = d3.pointer(ev, el);
+      cc.showTip(el, t, px, py, cc.mesCorto(r.mes) + ' ' + r.mes.slice(0, 4), [[null, 'Gasto', cc.full(r[base])], [null, 'Facturas', cc.int(r.facturas)]]);
+    })
+    .on('mouseleave', () => { t.hidden = true; });
+});
+dash.draw('tb-prov-facturas', (tb) => {
+  if (dash.data('facturas').status !== 'ok' || dash.data('proveedores').status !== 'ok') { tb.replaceChildren(); return; }
+  const sel = provSel();
+  const data = dash.data('facturas').data.filter((r) => sel && r.proveedor === sel.proveedor && r.mes >= '2026-01')
+    .sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+  cc.rows(tb, data, [
+    ['fecha', cc.fecha], ['tipo'], ['neto', cc.full, 'cc-n'], ['total', cc.full, 'cc-n'], ['detalle', null, 'cc-hide-sm'], ['archivo', null, 'cc-file'],
+  ], (r) => r.archivo);
+});
+</script>
+
+<script>
+/* ---------- insumos ---------- */
+const insFiltered = () => {
+  const g = dash.params().grupo;
+  return dash.data('insumos').data.filter((r) => (!g || r.grupo === g));
+};
+const insSel = () => {
+  const rows = dash.data('insumos').data;
+  const p = dash.params().insumo;
+  return rows.find((r) => r.insumo === p) || rows[0];
+};
+dash.draw('sel-grupo', (sel) => {
+  const g = dash.data('insumos');
+  const grupos = g.status === 'ok' ? [...new Set(g.data.map((r) => r.grupo).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es')) : [];
+  sel.replaceChildren(new Option('Todos los grupos', ''), ...grupos.map((x) => new Option(x, x)));
+  sel.value = dash.params().grupo ?? '';
+  sel.onchange = () => dash.setParams({grupo: sel.value || null});
+});
+dash.draw('tb-insumos', (tb) => {
+  if (dash.data('insumos').status !== 'ok') { tb.replaceChildren(); return; }
+  const sel = insSel();
+  const data = cc.sorted(insFiltered().filter((r) => cc.matches(r, 'insumos', ['insumo', 'proveedor', 'grupo'])), 'insumos');
+  const trend = (v) => (v == null ? 'cc-n' : v > 0.005 ? 'cc-n cc-up' : v < -0.005 ? 'cc-n cc-down' : 'cc-n');
+  cc.rows(tb, data, [
+    ['insumo'], ['proveedor', null, 'cc-hide-sm'], ['unidad'], ['ultimo_precio', cc.full, 'cc-n'],
+    ['variacion', cc.signed, trend], ['excel', cc.full, 'cc-n cc-hide-sm'], ['vs_excel', cc.signed, (v) => trend(v) + ' cc-hide-sm'],
+    ['gasto', cc.full, 'cc-n'],
+  ], (r) => r.insumo, {clickable: true, selected: sel && sel.insumo});
+});
+const insField = (name, field, fmt, cls) => dash.draw(name, (el) => {
+  if (!cc.ready(el, ['insumos'])) return;
+  const r = insSel();
+  if (!r) { el.textContent = '—'; return; }
+  el.dataset.where = 'insumo=' + cc.enc(r.insumo);
+  el.textContent = fmt(r[field]);
+  if (cls) el.className = cls(r[field]);
+});
+insField('ins-nombre', 'insumo', (v) => v);
+insField('ins-precio', 'ultimo_precio', cc.full);
+insField('ins-unidad', 'unidad', (v) => ({kg: 'kilo', lt: 'litro', u: 'unidad'}[v] || v));
+insField('ins-var', 'variacion', cc.signed, (v) => (v > 0.005 ? 'cc-up' : v < -0.005 ? 'cc-down' : ''));
+insField('ins-desde', 'primer_mes_nombre', (v) => v);
+insField('ins-hasta', 'ultimo_mes_nombre', (v) => v);
+
+dash.draw('ch-precio', (el) => {
+  if (!cc.ready(el, ['precios', 'insumos'], '')) return;
+  const sel = insSel();
+  if (!sel) { el.replaceChildren(); return; }
+  const pts = dash.data('precios').data.filter((r) => r.insumo === sel.insumo);
+  const provs = [...new Set(pts.map((r) => r.proveedor))];
+  provs.sort((a, b) => (a === sel.proveedor ? -1 : b === sel.proveedor ? 1 : 0));
+  const parse = (m) => new Date(Date.UTC(Number(m.slice(0, 4)), Number(m.slice(5)) - 1, 1));
+  const W = Math.max(280, el.clientWidth), H = 260;
+  el.replaceChildren();
+  const svg = d3.select(el).append('svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H + 8}`);
+  const ymax = d3.max(pts, (r) => r.precio) || 1;
+  const y = d3.scaleLinear([0, ymax * 1.08], [H - 24, 8]).nice();
+  const ticks = y.ticks(5);
+  const left = cc.textWidth(svg, ticks.map(cc.full)) + 10;
+  const meses = [...new Set(pts.map((r) => r.mes))].sort();
+  const ends = provs.map((p) => p.length > 22 ? p.slice(0, 21) + '…' : p);
+  const right = Math.min(W * 0.35, cc.textWidth(svg, ends) + 16);
+  const x = d3.scaleUtc([parse(meses[0]), parse(meses[meses.length - 1])], [left + 8, W - right]);
+  if (meses.length === 1) x.domain([d3.utcMonth.offset(parse(meses[0]), -1), d3.utcMonth.offset(parse(meses[0]), 1)]);
+  svg.append('g').selectAll('line').data(ticks).join('line').attr('x1', left).attr('x2', W - right)
+    .attr('y1', (t) => y(t)).attr('y2', (t) => y(t)).style('stroke', 'var(--cds-chart-grid)');
+  svg.append('g').selectAll('text').data(ticks).join('text').attr('x', left - 8).attr('y', (t) => y(t))
+    .attr('dy', '0.32em').attr('text-anchor', 'end').text(cc.full);
+  const months = d3.utcMonth.range(x.domain()[0], d3.utcMonth.offset(x.domain()[1], 1));
+  const every = Math.ceil(months.length / Math.max(2, Math.floor((W - left - right) / 56)));
+  svg.append('g').selectAll('text').data(months.filter((_, i) => i % every === 0)).join('text')
+    .attr('x', (d) => x(d)).attr('y', H - 6).attr('text-anchor', 'middle')
+    .text((d) => cc.mesCorto(d.toISOString().slice(0, 7)));
+  const col = (i) => (i === 0 ? dash.colors[0] : dash.colors[(i % (dash.colors.length - 1)) + 1]);
+  const line = d3.line().x((r) => x(parse(r.mes))).y((r) => y(r.precio));
+  const labels = [];
+  provs.forEach((p, i) => {
+    const s = pts.filter((r) => r.proveedor === p);
+    svg.append('path').datum(s).attr('d', line).style('fill', 'none').style('stroke', col(i))
+      .attr('stroke-width', 2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round');
+    svg.append('g').selectAll('circle').data(s).join('circle').attr('cx', (r) => x(parse(r.mes))).attr('cy', (r) => y(r.precio))
+      .attr('r', s.length === 1 ? 4 : 2.5).style('fill', col(i));
+    const last = s[s.length - 1];
+    labels.push({y: y(last.precio), x: x(parse(last.mes)), text: ends[i], color: col(i)});
+  });
+  labels.sort((a, b) => a.y - b.y);
+  for (let i = 1; i < labels.length; i++) if (labels[i].y - labels[i - 1].y < 13) labels[i].y = labels[i - 1].y + 13;
+  svg.append('g').selectAll('text').data(labels).join('text').attr('x', (d) => d.x + 6).attr('y', (d) => d.y).attr('dy', '0.32em')
+    .text((d) => d.text).style('fill', (d) => d.color);
+  const t = cc.tip(el);
+  const hover = svg.append('line').attr('y1', 8).attr('y2', H - 24).style('stroke', 'var(--cds-chart-reference)').attr('visibility', 'hidden');
+  svg.append('rect').attr('x', left).attr('width', W - right - left).attr('y', 0).attr('height', H).style('fill', 'transparent')
+    .on('mousemove', (ev) => {
+      const [px, py] = d3.pointer(ev, el);
+      const d = x.invert(px * (W / el.clientWidth));
+      const m = meses.reduce((best, mm) => (Math.abs(parse(mm) - d) < Math.abs(parse(best) - d) ? mm : best), meses[0]);
+      hover.attr('x1', x(parse(m))).attr('x2', x(parse(m))).attr('visibility', 'visible');
+      const lines = provs.map((p, i) => [p, i]).map(([p, i]) => [col(i), p, pts.find((r) => r.proveedor === p && r.mes === m)])
+        .filter((l) => l[2]).map(([c, p, r]) => [c, p, cc.full(r.precio)]);
+      cc.showTip(el, t, px, py, cc.mesCorto(m) + ' ' + m.slice(0, 4) + ' · por ' + ({kg: 'kilo', lt: 'litro', u: 'unidad'}[sel.unidad] || sel.unidad), lines);
+    })
+    .on('mouseleave', () => { t.hidden = true; hover.attr('visibility', 'hidden'); });
+});
+dash.draw('tb-renglones', (tb) => {
+  if (dash.data('renglones').status !== 'ok' || dash.data('insumos').status !== 'ok') { tb.replaceChildren(); return; }
+  const sel = insSel();
+  const data = dash.data('renglones').data.filter((r) => sel && r.insumo === sel.insumo).sort((a, b) => (a.fecha < b.fecha ? 1 : -1));
+  cc.rows(tb, data, [
+    ['fecha', cc.fecha], ['proveedor', null, 'cc-hide-sm'], ['descripcion', (v, r) => v + (r.atipico === 'si' ? ' · atípico' : '')],
+    ['cantidad', (v, r) => cc.qty(Number(v)) + ' ' + r.unidad, 'cc-n cc-hide-sm'],
+    ['precio_base', (v) => (v === '' ? '—' : cc.full(Number(v))), 'cc-n'], ['importe', (v) => cc.full(Number(v)), 'cc-n'],
+  ], (r) => r.id);
+});
+</script>
+
+<script>
+/* ---------- facturas y calidad ---------- */
+dash.draw('tb-facturas', (tb) => {
+  if (dash.data('facturas').status !== 'ok') { tb.replaceChildren(); return; }
+  const data = cc.sorted(dash.data('facturas').data.filter((r) => cc.matches(r, 'facturas', ['proveedor', 'rubro', 'fecha', 'archivo', 'tipo', 'detalle'])), 'facturas');
+  cc.rows(tb, data, [
+    ['fecha', cc.fecha], ['proveedor'], ['rubro', null, 'cc-hide-sm'], ['tipo', null, 'cc-hide-sm'],
+    ['neto', (v) => cc.full(Number(v)), 'cc-n'], ['total', (v) => cc.full(Number(v)), 'cc-n'],
+    ['fuente', null, 'cc-hide-sm'], ['detalle', null, 'cc-hide-sm'], ['archivo', null, 'cc-file'],
+  ], (r) => r.archivo);
+});
+const temaSel = () => {
+  const rows = dash.data('calidad_temas').data;
+  return rows.find((r) => r.tema === dash.params().tema) || rows[0];
+};
+dash.draw('tb-temas', (tb) => {
+  if (dash.data('calidad_temas').status !== 'ok') { tb.replaceChildren(); return; }
+  const sel = temaSel();
+  cc.rows(tb, dash.data('calidad_temas').data, [['tema'], ['casos', cc.int, 'cc-n']], (r) => r.tema, {clickable: true, selected: sel && sel.tema});
+});
+dash.draw('tema-nombre', (el) => {
+  if (!cc.ready(el, ['calidad_temas'])) return;
+  const r = temaSel();
+  if (!r) { el.textContent = '—'; return; }
+  el.dataset.where = 'tema=' + cc.enc(r.tema);
+  el.textContent = r.tema;
+});
+dash.draw('tb-calidad', (tb) => {
+  if (dash.data('calidad').status !== 'ok' || dash.data('calidad_temas').status !== 'ok') { tb.replaceChildren(); return; }
+  const sel = temaSel();
+  const data = dash.data('calidad').data.filter((r) => sel && r.tema === sel.tema);
+  cc.rows(tb, data, [['proveedor', (v) => v || '—'], ['detalle'], ['archivo', null, 'cc-file cc-hide-sm']], (r) => r.id);
+});
+</script>

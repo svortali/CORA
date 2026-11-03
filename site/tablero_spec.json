@@ -1,0 +1,37 @@
+{
+  "titulo": "Costos Cora 2026",
+  "params_iniciales": {
+    "base": "neto",
+    "grupo": null,
+    "insumo": "CAFÉ EN GRANO TOLVA",
+    "proveedor": null,
+    "tab": "resumen",
+    "tema": null
+  },
+  "datasets": {
+    "facturas": {
+      "title": "Facturas de proveedores",
+      "description": "Un comprobante por fila, leído de los PDF y fotos de la carpeta de proveedores 2026 de OneDrive, con neto, total, rubro y archivo.",
+      "schedule": "Se regenera a pedido cuando entran facturas nuevas a la carpeta",
+      "csv": "data/tablero/facturas.csv"
+    },
+    "renglones": {
+      "title": "Renglones de las facturas",
+      "description": "Cada producto facturado con cantidad, importe sin IVA, el insumo al que corresponde y su precio por kilo, litro o unidad.",
+      "schedule": "Se regenera a pedido cuando entran facturas nuevas a la carpeta",
+      "csv": "data/tablero/renglones.csv"
+    },
+    "costos_excel": {
+      "title": "Excel de costos de ingredientes",
+      "description": "Costo por unidad de cada ingrediente según CostoDeIngredientes_actualizado.xlsx de la carpeta Costos.",
+      "schedule": null,
+      "csv": "data/tablero/costos_excel.csv"
+    },
+    "calidad": {
+      "title": "Revisión del archivo",
+      "description": "Problemas encontrados al leer la carpeta y el Excel: faltantes, duplicados, fotos, facturas archivadas en otro mes y filas del Excel a completar.",
+      "schedule": "Se regenera a pedido junto con las facturas",
+      "csv": "data/tablero/calidad.csv"
+    }
+  }
+}
